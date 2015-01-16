@@ -19,18 +19,22 @@ const GLchar* vertexShaderSource =
 		"#version 330 core \n"
 
 		"layout (location = 0) in vec2 position;\n"
+		"out vec4 vertexColor;"
 		"void main()\n"
 		"{\n"
 			"gl_Position = vec4(position.x, position.y, 0.0, 1.0);\n"
+			"vertexColor = vec4(0.5f, 0.0f, 0.0f, 1.0f);"
 		"}\0";
 
 const GLchar* fragmentShaderSource =
 		"#version 330 core \n"
 
 		"out vec4 color;\n"
+
+		"uniform vec4 ourColor;"
 		"void main()\n"
 		"{\n"
-			"color = vec4(0.3f, 0.5f, 0.8f, 1.0f);\n"
+			"color = ourColor;\n"
 		"}\n\0";
 
 
@@ -118,11 +122,12 @@ int main(int argc, char *argv[])
 	glEnableVertexAttribArray(0);
 	glBindVertexArray(0);
 
-
 	//Create SDL Window
 
 	//Mainloop
 	bool continueLoop = true;
+	GLfloat timeValue;
+	GLint vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
 	while(continueLoop)
 	{
 		if(SDL_PollEvent(&windowEvent))
@@ -142,6 +147,11 @@ int main(int argc, char *argv[])
 		}
 		glClearColor(0.2, 0.2f, 0.4f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		timeValue = ((SDL_GetTicks()/10)%360)*0.0174532925;
+		std::cout << timeValue << std::endl;
+		glUniform4f(vertexColorLocation,sin(timeValue)/2+0.5, 0.0f, 0.0, 1.0f);
+
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
 
