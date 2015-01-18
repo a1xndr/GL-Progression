@@ -8,6 +8,9 @@
 #ifndef CAMERA_HPP_
 #define CAMERA_HPP_
 
+#include <GL/glew.h>
+#include <SDL2/SDL_opengl.h>
+
 #include <glm/glm.hpp>
 #include <glm/matrix.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -49,7 +52,7 @@ public:
     glm::mat4 GetViewMatrix();
 
     void ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime);
-    void ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true);
+    void ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLfloat deltaTime, GLboolean constrainPitch = true);
     void ProcessMouseScroll(GLfloat yoffset);
 
 private:

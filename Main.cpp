@@ -22,6 +22,7 @@
 
 #include "Shader.hpp"
 #include "Texture.hpp"
+#include "Camera.hpp"
 
 const GLfloat shapeVertices[] = {
 //		x 		y				s		t
@@ -146,16 +147,13 @@ int main(int argc, char *argv[])
 	shaderProgram.Use();
 
 
-	glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, -2.0f);
-	glm::vec3 cameraDirection = glm::vec3(0.0f, 0.0f, 1.0f);
-	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-	GLfloat pitch= 0.0f;
-	GLfloat yaw= -90.0f;
-	GLfloat cameraSpeed = 0.15f;
-	GLfloat sensitivity = 0.05f;
+	Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 	const Uint8 *state = SDL_GetKeyboardState(NULL);
+	double previousTick=SDL_GetTicks();
 	while(continueLoop)
 	{
+		double tickLength=(SDL_GetTicks()-previousTick)/1000;
+		previousTick=SDL_GetTicks();
 		while(SDL_PollEvent(&windowEvent))
 		{
 			switch (windowEvent.type)
@@ -164,34 +162,22 @@ int main(int argc, char *argv[])
 				continueLoop=false;
 				break;
 			case SDL_MOUSEMOTION:
-				yaw+=windowEvent.motion.xrel*sensitivity;
-				pitch-=windowEvent.motion.yrel*sensitivity;
-				cout << windowEvent.motion.xrel << ":" <<windowEvent.motion.yrel<<endl;
+				camera.ProcessMouseMovement(windowEvent.motion.xrel,windowEvent.motion.yrel,tickLength);
 				break;
 			}
 		}
 
-
-		if(pitch> 89.0f) pitch = 89.0f;
-		if(pitch< -89.0f) pitch = -89.0f;
-
-		glm::vec3 direction;
-		direction.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
-		direction.y = sin(glm::radians(pitch));
-		direction.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-		cameraDirection = direction;
-
 		if(state[SDL_SCANCODE_W]){
-			cameraPosition+=cameraSpeed*cameraDirection;
+			camera.ProcessKeyboard(FORWARD, tickLength);
 		}
 		if(state[SDL_SCANCODE_S]){
-			cameraPosition-=cameraSpeed*cameraDirection;
+			camera.ProcessKeyboard(BACKWARD, tickLength);
 		}
 		if(state[SDL_SCANCODE_A]){
-			cameraPosition-=glm::normalize(glm::cross(cameraDirection,cameraUp))*cameraSpeed;
+			camera.ProcessKeyboard(LEFT, tickLength);
 		}
 		if(state[SDL_SCANCODE_D]){
-			cameraPosition+=glm::normalize(glm::cross(cameraDirection,cameraUp))*cameraSpeed;
+			camera.ProcessKeyboard(RIGHT, tickLength);
 		}
 		if(state[SDL_SCANCODE_ESCAPE]){
 			continueLoop=false;
@@ -206,7 +192,7 @@ int main(int argc, char *argv[])
 		timeValue = ((SDL_GetTicks()/10)%360)*(M_PI/180);
 	    //glm::mat4 transform;
 	    glm::mat4 model;
-	    glm::mat4 view;
+	    glm::mat4 view = camera.GetViewMatrix();
 	    glm::mat4 projection;
 
 
@@ -215,9 +201,7 @@ int main(int argc, char *argv[])
 	    //transform = glm::scale(transform, glm::vec3(0.5, 0.5, 0.5));
 		//glUniform4f(vertexColorLoc,sin(timeValue)/2+0.5, 0.0f, 0.0, 1.0f);
 
-	    GLfloat cameraX = sin(timeValue) * 10;
-	    GLfloat cameraZ = cos(timeValue) * 10;
-	    view = glm::lookAt(cameraPosition, cameraPosition+cameraDirection, cameraUp);
+
 	    projection = glm::perspective((float)(60.0*(M_PI/180)), (float)1024/(float)768, 0.1f, 1000.0f);
 
 
