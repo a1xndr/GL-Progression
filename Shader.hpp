@@ -24,9 +24,6 @@ public:
 	GLuint Program;
 	//Constructor reads and assembles vertex and fragment shader.
 	//Use the compiled program
-
-
-
 	Shader(const GLchar* vertexSourcePath, const GLchar* fragmentSourcePath);
 
 	void Use() { glUseProgram(this->Program); }

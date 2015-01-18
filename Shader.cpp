@@ -1,13 +1,8 @@
 #pragma once
 
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
 
 using namespace std;
 
-#include <GL/glew.h>
 
 #include "Shader.hpp"
 
