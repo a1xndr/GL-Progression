@@ -49,6 +49,10 @@ void Camera::ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime)
         this->Position -= this->Right * velocity;
     if(direction == RIGHT)
         this->Position += this->Right * velocity;
+    if(direction == UP)
+        this->Position += this->WorldUp * velocity;
+    if(direction == DOWN)
+        this->Position -= this->WorldUp * velocity;
     this->updateCameraVectors();
 }
 
