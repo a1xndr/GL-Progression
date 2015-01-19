@@ -110,8 +110,8 @@ int main(int argc, char *argv[])
     glEnable(GL_DEPTH_TEST);
 
 
-	Texture crate("textures/crate.png");
-	Texture crate_specular("textures/crate_specular.png");
+	Texture crate("textures/crate2.png");
+	Texture crate_specular("textures/crate2_specular.png");
 	Texture crate_normal("textures/crate2_normal.png");
     Shader objectShader("shaders/vertex.vs", "shaders/fragment.frag");
     Shader lightShader("shaders/lightVertex.vs", "shaders/lightFragment.frag");
@@ -171,6 +171,9 @@ int main(int argc, char *argv[])
 	GLint ltAmbientColorLoc = glGetUniformLocation(objectShader.Program, "light.ambient");
 	GLint ltDiffuseColorLoc = glGetUniformLocation(objectShader.Program, "light.diffuse");
 	GLint ltSpecularColorLoc = glGetUniformLocation(objectShader.Program, "light.specular");
+	GLint ltAttenConst = glGetUniformLocation(objectShader.Program, "light.constant");
+	GLint ltAttenLin = glGetUniformLocation(objectShader.Program, "light.linear");
+	GLint ltAttenQuad = glGetUniformLocation(objectShader.Program, "light.quadratic");
 
 
 	GLint lightColorLoc = glGetUniformLocation(lightShader.Program, "lightColor");
@@ -248,12 +251,12 @@ int main(int argc, char *argv[])
         glUniform3f(lightColorLoc, lightColor.x, lightColor.y, lightColor.z);
         glUniformMatrix4fv(lightViewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(lightProjectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-        lightModel = glm::rotate(lightModel, (float)(30.0*(M_PI/180))+timeValue, glm::vec3(0.0f,0.0f,1.0f));
+        lightModel = glm::rotate(lightModel, timeValue, glm::vec3(0.0f,0.0f,1.0f));
         lightModel = glm::translate(lightModel,lightPosition);
     	lightModel = glm::scale(lightModel, glm::vec3(0.2f));
     	glUniformMatrix4fv(lightModelLoc, 1, GL_FALSE, glm::value_ptr(lightModel));
         glBindVertexArray(lightVAO);
-        //glDrawArrays(GL_TRIANGLES, 0, 36 );
+        glDrawArrays(GL_TRIANGLES, 0, 36 );
         glBindVertexArray(0);
 
 
@@ -271,7 +274,7 @@ int main(int argc, char *argv[])
     	glActiveTexture(GL_TEXTURE2);
     	glBindTexture(GL_TEXTURE_2D, crate_normal.texture);
 
-        glUniform1f(matShininessLoc, 16.0f);
+        glUniform1f(matShininessLoc, 4.0f);
         glUniform1f(matReflectivityLoc, 0.4f);
 
         //Light Properties
@@ -281,7 +284,11 @@ int main(int argc, char *argv[])
         glUniform3f(ltAmbientColorLoc, ambientColor.x, ambientColor.y, ambientColor.z);
         glUniform3f(ltDiffuseColorLoc, diffuseColor.x, diffuseColor.y, diffuseColor.z);
         glUniform3f(ltSpecularColorLoc, lightColor.x, lightColor.y, lightColor.z);
-        glUniform3f(ltDirectionLoc, -0.2f, -1.0f, -0.3f);
+        glUniform3f(ltPositionLoc, glm::vec3(lightModel[3]).x, glm::vec3(lightModel[3]).y, glm::vec3(lightModel[3]).z);
+        glUniform1f(ltAttenConst, 1.0f);
+        glUniform1f(ltAttenLin, 0.09f);
+        glUniform1f(ltAttenQuad, 0.032f);
+
 
 
 

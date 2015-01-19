@@ -15,11 +15,16 @@ struct Material {
 };
 
 struct Light {
-	// vec3 position;
-	vec3 direction;
+	vec3 position;
+	//vec3 direction;
 	vec3 ambient;
 	vec3 diffuse;
 	vec3 specular;
+	
+	//attenuation attributes
+	float constant;
+	float linear;
+	float quadratic; 
 };
 
 uniform vec3 objectColor;
@@ -32,11 +37,16 @@ uniform Light light;
 void main()
 {
 	//Properties
-	//vec3 norm = normalize(texture2D(material.normal, TexCoords).rgb * 2.0 -1.0);
-	vec3 norm = normalize(Normal);
-	vec3 lightDir = normalize(-light.direction);
+	vec3 norm = normalize(texture2D(material.normal, TexCoords).rgb * 2.0 -1.0);
+	//vec3 norm = normalize(Normal);
+	vec3 lightDir = normalize(light.position-Position);
 	vec3 viewDir = normalize(viewPos - Position);
 	vec3 reflectDir = reflect(-lightDir, norm);  
+	float distance = length(light.position-Position);
+	
+	//Attenuatuon
+	float attenuation = 1.0f / (light.constant + light.linear*distance + light.quadratic*(distance*distance));
+	
 	
 	//Ambient
 	vec3 ambientLight = vec3(texture(material.diffuse, TexCoords)) * light.ambient;
@@ -49,6 +59,6 @@ void main()
 	float specularStrength = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess)*material.reflectivity;
 	vec3 specularLight = vec3(texture(material.specular, TexCoords)) * specularStrength * light.specular;
 	
-	vec3 combinedLight = (ambientLight + diffuseLight + specularLight);
+	vec3 combinedLight = (ambientLight + diffuseLight + specularLight)*attenuation;
 	color = vec4(combinedLight, 1.0f);
 }
