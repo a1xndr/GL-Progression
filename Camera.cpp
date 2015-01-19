@@ -49,6 +49,7 @@ void Camera::ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime)
         this->Position -= this->Right * velocity;
     if(direction == RIGHT)
         this->Position += this->Right * velocity;
+    this->updateCameraVectors();
 }
 
 void Camera::ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLfloat deltaTime, GLboolean constrainPitch)

@@ -174,6 +174,7 @@ int main(int argc, char *argv[])
 	GLint ltAttenConst = glGetUniformLocation(objectShader.Program, "light.constant");
 	GLint ltAttenLin = glGetUniformLocation(objectShader.Program, "light.linear");
 	GLint ltAttenQuad = glGetUniformLocation(objectShader.Program, "light.quadratic");
+	GLint ltSpotCutOffLoc = glGetUniformLocation(objectShader.Program, "light.spotCutOff");
 
 
 	GLint lightColorLoc = glGetUniformLocation(lightShader.Program, "lightColor");
@@ -252,7 +253,8 @@ int main(int argc, char *argv[])
         glUniformMatrix4fv(lightViewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(lightProjectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
         lightModel = glm::rotate(lightModel, timeValue, glm::vec3(0.0f,0.0f,1.0f));
-        lightModel = glm::translate(lightModel,lightPosition);
+        lightModel = glm::translate(lightModel,glm::vec3(0,0,6));
+       //ightModel = glm::translate(lightModel,camera.Position);
     	lightModel = glm::scale(lightModel, glm::vec3(0.2f));
     	glUniformMatrix4fv(lightModelLoc, 1, GL_FALSE, glm::value_ptr(lightModel));
         glBindVertexArray(lightVAO);
@@ -281,25 +283,22 @@ int main(int argc, char *argv[])
         glm::vec3 diffuseColor = lightColor*glm::vec3(0.8f);
         glm::vec3 ambientColor = diffuseColor*glm::vec3(0.2f);
 
+        //glUniform3f(ltPositionLoc, glm::vec3(lightModel[3]).x, glm::vec3(lightModel[3]).y, glm::vec3(lightModel[3]).z);
+        glUniform3f(ltPositionLoc, glm::vec3(lightModel[3]).x, glm::vec3(lightModel[3]).y, glm::vec3(lightModel[3]).z);
+        glUniform3f(ltDirectionLoc, 0, 0, -1);
         glUniform3f(ltAmbientColorLoc, ambientColor.x, ambientColor.y, ambientColor.z);
         glUniform3f(ltDiffuseColorLoc, diffuseColor.x, diffuseColor.y, diffuseColor.z);
         glUniform3f(ltSpecularColorLoc, lightColor.x, lightColor.y, lightColor.z);
-        glUniform3f(ltPositionLoc, glm::vec3(lightModel[3]).x, glm::vec3(lightModel[3]).y, glm::vec3(lightModel[3]).z);
         glUniform1f(ltAttenConst, 1.0f);
         glUniform1f(ltAttenLin, 0.09f);
         glUniform1f(ltAttenQuad, 0.032f);
-
-
+        glUniform1f(ltSpotCutOffLoc, glm::cos(glm::radians(12.5f)));
 
 
         glUniform3f(viewPositionLoc, camera.Position.x, camera.Position.y, camera.Position.z);
 
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-
-
-
 
         for(GLuint i = 0; i < 10; i++)
         {
