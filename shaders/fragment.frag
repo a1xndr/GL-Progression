@@ -1,4 +1,4 @@
-#version 330 core
+#version 130 
 struct Material {
     sampler2D texture_diffuse1;
     sampler2D texture_specular1;
@@ -44,7 +44,7 @@ void main()
     for(int i = 0; i < NR_POINT_LIGHTS; i++)
         result += CalcPointLight(pointLights[i], material, norm, fragPosition, viewDir);
         
-    color = vec4(result, 1.0f);
+    color = vec4(vec3(texture(material.texture_diffuse1, TexCoords)), 1.0f);
 }
 
 
