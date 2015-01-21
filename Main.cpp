@@ -16,13 +16,24 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 #include <math.h>
 #include <iostream>
-
+#include <string>
 
 #include "Shader.hpp"
 #include "Camera.hpp"
 #include "Model.hpp"
+#include "Text.hpp"
+#include "Sprite.hpp"
+
+#include "toolbox.hpp"
+
+#define WINDOW_WIDTH 800
+#define WINDOW_HEIGHT 600
+#define FPS_UPDATE_RATE 5
 
 glm::vec3 pointLightPositions[] = {
     glm::vec3(-2.0f, 2.0f, 2.0f),
@@ -38,20 +49,31 @@ int main(int argc, char *argv[])
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_Window* window = SDL_CreateWindow("gl", 100, 100, 1920, 1080, SDL_WINDOW_OPENGL);
+	SDL_Window* window = SDL_CreateWindow("gl", 100, 100, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_OPENGL);
 	SDL_ShowCursor(0);
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	SDL_Event 	windowEvent;
 	SDL_GLContext glContext = SDL_GL_CreateContext(window);
-    glViewport(0, 0, 1920, 1080);
+    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 	glewExperimental = GL_TRUE;
     GLenum err = glewInit();
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     Shader objectShader("shaders/vertex.vs", "shaders/fragment.frag");
-    //Shader lightShader("shaders/lightVertex.vs", "shaders/lightFragment.frag");
+    Shader textShader("shaders/textVertex.vs", "shaders/textFragment.frag");
 
+    Font Arial("fonts/arial.ttf");
+
+    Sprite sprite("fonts/arial.ttf");
+
+
+    //Load/Prepare Fonts.
+
+    glm::mat4 textProjection = glm::ortho(0.0f, (float)WINDOW_WIDTH , 0.0f, (float)WINDOW_HEIGHT);
 
     Model ourModel("models/nanosuit.obj");
 
@@ -68,8 +90,23 @@ int main(int argc, char *argv[])
 	const Uint8 *state = SDL_GetKeyboardState(NULL);
 	double previousTick=SDL_GetTicks();
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	int time;
+	int framesSinceFpsUpdate = 0;
+	int timeLastFpsUpdate=0;
+	int framerate=0;
 	while(continueLoop)
 	{
+		time = SDL_GetTicks();
+		if( time - timeLastFpsUpdate >= 1000/FPS_UPDATE_RATE )
+		{
+			framerate = framesSinceFpsUpdate*1000/((time-timeLastFpsUpdate));
+			timeLastFpsUpdate=SDL_GetTicks();
+			framesSinceFpsUpdate=0;
+
+		}
+		framesSinceFpsUpdate++;
+
+
 		double tickLength=(SDL_GetTicks()-previousTick)/1000;
 		previousTick=SDL_GetTicks();
 		while(SDL_PollEvent(&windowEvent))
@@ -119,12 +156,12 @@ int main(int argc, char *argv[])
 	    glm::vec3 lightColor(0.8f,0.9f,1.0f);
 	    glm::mat4 view = camera.GetViewMatrix();
 	    glm::mat4 projection;
-	    projection = glm::perspective((float)(60.0*(M_PI/180)), (float)1920/(float)1080, 0.1f, 1000.0f);
+	    projection = glm::perspective((float)(60.0*(M_PI/180)), (float)WINDOW_WIDTH/(float)WINDOW_HEIGHT, 0.1f, 1000.0f);
 
 
 		objectShader.Use();
 
-	    projection = glm::perspective((float)(60.0*(M_PI/180)), (float)1920/(float)1080, 0.1f, 1000.0f);
+	    projection = glm::perspective((float)(60.0*(M_PI/180)), (float)WINDOW_WIDTH/(float)WINDOW_HEIGHT, 0.1f, 1000.0f);
     	glUniformMatrix4fv(glGetUniformLocation(objectShader.Program, "projection"),
     														1, GL_FALSE, glm::value_ptr(projection));
     	glUniformMatrix4fv(glGetUniformLocation(objectShader.Program, "view"),
@@ -151,19 +188,34 @@ int main(int argc, char *argv[])
         glUniform1f(glGetUniformLocation(objectShader.Program, "pointLights[1].quadratic"), 0.0032);
 
 
-		glm::mat4 model;
-		model = glm::translate(model,glm::vec3(0.0f, -1.75f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
-		glUniformMatrix4fv(glGetUniformLocation(objectShader.Program, "model"),
-	    														1, GL_FALSE, glm::value_ptr(model));
-		ourModel.Draw(objectShader);
 
+        /*for(int i=0; i<20; i++)
+        {
+            for(int j=0; j<1; j++)
+            {
+    		glm::mat4 model;
+    		model = glm::translate(model,glm::vec3(pow(-1,i)*i*1.0f, -1.75f, pow(-1,j)*j*1.0f));
+    		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+    		glUniformMatrix4fv(glGetUniformLocation(objectShader.Program, "model"),
+    	    														1, GL_FALSE, glm::value_ptr(model));
+    		ourModel.Draw(objectShader);
+            }
+        }*/
 
+        //model = glm::translate(model,glm::vec3(pow(-1,i)*i*1.0f, -1.75f, pow(-1,j)*j*1.0f));
+        sprite.draw(objectShader);
+
+        glDisable(GL_DEPTH_TEST);
+		textShader.Use();
+		glUniformMatrix4fv(glGetUniformLocation(textShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(textProjection));
+		Arial.drawString(textShader, tostr(framerate) + " fps" , 10, WINDOW_HEIGHT-(40*0.3f)-10, 0.3f, glm::vec3(1.0f,1.0f,1.0f));
+        glEnable(GL_DEPTH_TEST);
 		SDL_GL_SwapWindow(window);
 	}
 	SDL_Quit();
 	return 0;
 }
+
 
 
 

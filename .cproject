@@ -40,6 +40,7 @@
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="SDL2_image"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="assimp"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="SOIL"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="freetype"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.804718456" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -98,6 +99,8 @@
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="SDL_image"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="SDL2_image"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="ASSIMP"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="SOIL"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="FREETYPE2"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1156685229" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -135,4 +138,5 @@
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope"/>
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 </cproject>
